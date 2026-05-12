@@ -37,4 +37,5 @@ jobs:
             --no-allow-unauthenticated \
             --memory=512Mi \
             --timeout=540s \
+            --clear-base-image \
             --project=${{ env.PROJECT_ID }}
