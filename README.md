@@ -12,7 +12,7 @@ v1.0 used Alpaca; that dependency has been removed.
 ## Architecture
 
 ```
-Cloud Scheduler (magi-price-tracker-hourly, 0 * * * * America/New_York)
+Cloud Scheduler (magi-price-tracker-hourly, 0 * * * 1-5 America/New_York)
   -> GET https://magi-price-tracker-...run.app/run
        -> SELECT magi_analytics.llm_analysis WHERE actual_price_after_* IS NULL
        -> GET magi-moomoo/trade/quote?symbol=<sym>  (ID token auth)
