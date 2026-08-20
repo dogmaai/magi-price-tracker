@@ -39,3 +39,29 @@ jobs:
             --timeout=540s \
             --clear-base-image \
             --project=${{ env.PROJECT_ID }}
+
+      - name: Setup Cloud Scheduler for price tracker (hourly America/New_York)
+        run: |
+          URL=$(gcloud run services describe ${{ env.SERVICE }} \
+            --region=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} \
+            --format='value(status.url)')
+          gcloud scheduler jobs describe magi-price-tracker-hourly \
+            --location=${{ env.REGION }} \
+            --project=${{ env.PROJECT_ID }} 2>/dev/null && \
+          gcloud scheduler jobs update http magi-price-tracker-hourly \
+            --location=${{ env.REGION }} \
+            --schedule="0 * * * *" \
+            --time-zone="America/New_York" \
+            --uri="${URL}/run" \
+            --http-method=GET \
+            --oauth-service-account-email="github-actions@screen-share-459802.iam.gserviceaccount.com" \
+            --project=${{ env.PROJECT_ID }} || \
+          gcloud scheduler jobs create http magi-price-tracker-hourly \
+            --location=${{ env.REGION }} \
+            --schedule="0 * * * *" \
+            --time-zone="America/New_York" \
+            --uri="${URL}/run" \
+            --http-method=GET \
+            --oauth-service-account-email="github-actions@screen-share-459802.iam.gserviceaccount.com" \
+            --project=${{ env.PROJECT_ID }}
