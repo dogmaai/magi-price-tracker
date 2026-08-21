@@ -140,7 +140,7 @@ async function getRecordsNeedingUpdate(timeframe) {
          AND actual_price_at_analysis IS NOT NULL
          AND TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), created_at, HOUR) >= 24
          AND TIMESTAMP_DIFF(CURRENT_TIMESTAMP(), created_at, DAY) < 7`;
-  const [rows] = await bigquery.query({ query });
+  const [rows] = await bigquery.query({ query, location: 'asia-northeast1' });
   return rows;
 }
 
@@ -148,15 +148,15 @@ async function updateRecord(id, updates) {
   const setClauses = [];
   const params = { record_id: id };
 
-  if (updates.price_after_1h !== undefined) {
+  if (updates.price_after_1h != null) {
     setClauses.push('actual_price_after_1h = @price_1h');
     params.price_1h = updates.price_after_1h;
   }
-  if (updates.price_after_1d !== undefined) {
+  if (updates.price_after_1d != null) {
     setClauses.push('actual_price_after_1d = @price_1d');
     params.price_1d = updates.price_after_1d;
   }
-  if (updates.outcome !== undefined) {
+  if (updates.outcome != null) {
     setClauses.push('outcome = @outcome');
     params.outcome = updates.outcome;
   }
@@ -164,7 +164,8 @@ async function updateRecord(id, updates) {
 
   await bigquery.query({
     query: `UPDATE \`${TABLE}\` SET ${setClauses.join(', ')} WHERE id = @record_id`,
-    params
+    params,
+    location: 'asia-northeast1'
   });
   console.log(`[UPDATED] ${id}`);
 }
